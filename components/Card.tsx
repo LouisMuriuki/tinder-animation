@@ -4,6 +4,8 @@ import {
   Text,
   useWindowDimensions,
   Button,
+  Platform,
+  Vibration,
 } from "react-native";
 import React, { useContext, useEffect } from "react";
 import Animated, {
@@ -23,7 +25,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { DataContext } from "./context/DataContext";
 import * as Haptics from "expo-haptics";
 
-const Card = (props: { name: string;}) => {
+const Card = (props: { name: string }) => {
   const { width, height } = useWindowDimensions();
   const scale = useSharedValue<number>(1);
   const hide = useSharedValue<boolean>(false);
@@ -57,34 +59,33 @@ const Card = (props: { name: string;}) => {
   const filterCardData = () => {
     const filteredCards = cardsData?.filter((pre) => pre.name !== props.name);
     setcardsData(filteredCards);
-    console.log("trying to filter", filteredCards);
   };
 
   const vibrate = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Vibration.vibrate(20, false);
+  };
+  const deleteCard = () => {
+    filterCardData();
+    vibrate();
   };
 
   const pan_gesture = Gesture.Pan()
     .onBegin((e) => {
-      // translate.value = translate.value + e.absoluteX / 3 ;
+     
     })
     .onChange((e) => {
       console.log("THIS IS THE VALUE", translatex.value + e.changeX);
       translatex.value = translatex.value + e.changeX;
       translatey.value = translatey.value + e.changeY;
-      let ralativeX = translatex.value + e.changeX;
-
-      if (ralativeX <= -200) {
-        runOnJS(vibrate)();
+      let relativeX = translatex.value + e.changeX;
+      let relativeY = translatey.value + e.changeX;
+      if (relativeX < -175 || relativeY < -100) {
+        translatex.value = withSpring(relativeX + 50);
+        runOnJS(deleteCard)();
       }
-      if (ralativeX >= 200) {
-        runOnJS(vibrate)();
-      }
-      if (ralativeX < -220) {
-        runOnJS(filterCardData)();
-      }
-      if (ralativeX > 220) {
-        runOnJS(filterCardData)();
+      if (relativeX > 175 || relativeY > 100) {
+        translatex.value = withSpring(relativeX + 50);
+        runOnJS(deleteCard)();
       }
     })
     .onFinalize(() => {
@@ -96,10 +97,6 @@ const Card = (props: { name: string;}) => {
     fontSize: withSpring(hide.value ? 20 : 16),
   }));
 
-  useEffect(() => {
-    console.log("trying to runn");
-  }, [translatex]);
-
   const card_styles = useAnimatedStyle(() => ({
     transform: [
       { scale: withSpring(scale.value) },
@@ -110,6 +107,13 @@ const Card = (props: { name: string;}) => {
           translatex.value,
           [-500, 0, 500],
           [-100, 0, 100]
+        )}deg`,
+      },
+      {
+        rotateX: `${interpolate(
+          translatex.value,
+          [-500, 0, 500],
+          [30, 0, 30]
         )}deg`,
       },
     ],
@@ -155,6 +159,7 @@ const Card = (props: { name: string;}) => {
               backgroundColor: "blue",
               borderRadius: 20,
               position: "absolute",
+              zIndex: 1000,
             },
             leftcard,
           ]}
@@ -172,6 +177,7 @@ const Card = (props: { name: string;}) => {
               backgroundColor: "blue",
               borderRadius: 20,
               position: "absolute",
+              zIndex: 1000,
             },
             rightcard,
           ]}

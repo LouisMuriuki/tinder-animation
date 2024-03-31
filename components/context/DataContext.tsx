@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { cardsList } from "../../DataStore";
 interface card{
     name:string
@@ -12,8 +12,14 @@ export const DataContext = createContext<dataContextType>({
   cardsData: [],
   setcardsData: () => {},
 });
+
+
 export const DataContextprovider = ({ children }) => {
-  const [cardsData, setcardsData] = useState(cardsList);
+  const [cardsData, setcardsData] = useState();
+  useEffect(() => {
+    //@ts-expect-error
+    setcardsData(cardsList.reverse());
+  }, []);
   return (
     <DataContext.Provider value={{ cardsData, setcardsData }}>
       {children}

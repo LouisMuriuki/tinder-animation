@@ -39,9 +39,9 @@ const Main = () => {
       <View
         style={{
           zIndex,
-          // position: "absolute",
-          justifyContent: "center",
-          alignItems: "center",
+          position: "absolute", 
+          top:-280,
+          left:-150
         }}
       >
         <Card name={item.name} />
@@ -52,11 +52,18 @@ const Main = () => {
   const renderCards = () => {
     return (
       <SafeAreaView
-        style={{ flex: 1, position: "relative", backgroundColor: "#4A154B" }}
+        style={{
+          flex: 1,
+          backgroundColor: "#4A154B",
+        }}
       >
         <FlatList
+          inverted
           contentContainerStyle={{
             flexGrow: 1,
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
           }}
           data={cardsData.cardsData}
           renderItem={renderItem}
@@ -65,7 +72,15 @@ const Main = () => {
       </SafeAreaView>
     );
   };
-  return renderCards();
+  return (
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+      {renderCards()}
+    </View>
+  );
 };
 
 export default Main;
