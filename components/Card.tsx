@@ -24,9 +24,10 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { DataContext } from "./context/DataContext";
 import * as Haptics from "expo-haptics";
+import LottieView from "lottie-react-native";
 
-const Card = (props: { name: string }) => {
-  const { width, height } = useWindowDimensions();
+const Card = (props: { name: string; color: string; height: number }) => {
+  const { width } = useWindowDimensions();
   const scale = useSharedValue<number>(1);
   const hide = useSharedValue<boolean>(false);
   const translatex = useSharedValue<number>(0);
@@ -70,20 +71,18 @@ const Card = (props: { name: string }) => {
   };
 
   const pan_gesture = Gesture.Pan()
-    .onBegin((e) => {
-     
-    })
+    .onBegin((e) => {})
     .onChange((e) => {
       console.log("THIS IS THE VALUE", translatex.value + e.changeX);
       translatex.value = translatex.value + e.changeX;
       translatey.value = translatey.value + e.changeY;
       let relativeX = translatex.value + e.changeX;
       let relativeY = translatey.value + e.changeX;
-      if (relativeX < -175 || relativeY < -100) {
+      if (relativeX < -190 || relativeY < -100) {
         translatex.value = withSpring(relativeX + 50);
         runOnJS(deleteCard)();
       }
-      if (relativeX > 175 || relativeY > 100) {
+      if (relativeX > 190 || relativeY > 100) {
         translatex.value = withSpring(relativeX + 50);
         runOnJS(deleteCard)();
       }
@@ -118,11 +117,11 @@ const Card = (props: { name: string }) => {
       },
     ],
     opacity: interpolate(translatey.value, [-500, 0, 500], [0, 1, 0]),
-    backgroundColor: interpolateColor(
-      translatex.value,
-      [-500, 0, 500],
-      ["#38deee", "#d9064b", "#309e24"]
-    ),
+    // backgroundColor: interpolateColor(
+    //   translatex.value,
+    //   [-500, 0, 500],
+    //   ["#38deee", "#d9064b", "#309e24"]
+    // ),
   }));
 
   const leftcard = useAnimatedStyle(() => ({
@@ -143,7 +142,11 @@ const Card = (props: { name: string }) => {
         entering={BounceInDown}
         style={[
           styles.card_container,
-          { height: height - height / 5, width: width - 60 },
+          {
+            height: props.height,
+            width: width - 60,
+            backgroundColor: props.color,
+          },
           card_styles,
         ]}
       >
@@ -156,7 +159,6 @@ const Card = (props: { name: string }) => {
               flexDirection: "row",
               top: 80,
               left: 40,
-              backgroundColor: "blue",
               borderRadius: 20,
               position: "absolute",
               zIndex: 1000,
@@ -164,7 +166,15 @@ const Card = (props: { name: string }) => {
             leftcard,
           ]}
         >
-          <Text>left</Text>
+          <LottieView
+            autoPlay
+            style={{
+              width: 120,
+              height: 120,
+            }}
+            // Find more Lottie files at https://lottiefiles.com/featured
+            source={require("../assets/lotties/like.json")}
+          />
         </Animated.View>
         <Animated.View
           style={[
@@ -174,7 +184,6 @@ const Card = (props: { name: string }) => {
               flexDirection: "row",
               top: 80,
               right: 40,
-              backgroundColor: "blue",
               borderRadius: 20,
               position: "absolute",
               zIndex: 1000,
@@ -182,7 +191,15 @@ const Card = (props: { name: string }) => {
             rightcard,
           ]}
         >
-          <Text>right</Text>
+          <LottieView
+            autoPlay
+            style={{
+              width: 120,
+              height: 120,
+            }}
+            // Find more Lottie files at https://lottiefiles.com/featured
+            source={require("../assets/lotties/nope.json")}
+          />
         </Animated.View>
       </Animated.View>
 
@@ -215,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 30,
-    backgroundColor: "yellow",
+
     position: "relative",
   },
 });
