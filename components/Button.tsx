@@ -1,20 +1,20 @@
-import { View, Text } from "react-native";
-import React from "react";
-import LottieView from "lottie-react-native";
+import { View, Text, Vibration } from "react-native";
+import React, { useContext } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { transform } from "typescript";
+import { DataContext } from "./context/DataContext";
 
 const CustomButton = ({ height, width, icon_name }) => {
   const scale = useSharedValue(1);
-
+  const { cardsData, setcardsData } = useContext(DataContext);
   const tap = Gesture.Tap()
     .onBegin(() => {
       scale.value = withSpring(scale.value * 2, { duration: 200 });
@@ -26,12 +26,25 @@ const CustomButton = ({ height, width, icon_name }) => {
   const buttonStyles = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+  const filterCardData = () => {
+    const filteredCards = cardsData.slice(0, -1);
+    setcardsData(filteredCards);
+  };
 
+  const vibrate = () => {
+    Vibration.vibrate(20, false);
+  };
+  const deleteCard = () => {
+    console.log("running");
+    filterCardData();
+    vibrate();
+  };
   const ButtonIcon = React.forwardRef((props, ref) => {
-    return <Ionicons name={icon_name} size={36} color="black" {...props} />;
+    return <Ionicons name={icon_name} size={36} color="black" />;
   });
 
   const AnimatedIcon = Animated.createAnimatedComponent(ButtonIcon);
+
   return (
     <GestureDetector gesture={tap}>
       <View
@@ -48,11 +61,14 @@ const CustomButton = ({ height, width, icon_name }) => {
           alignItems: "center",
           justifyContent: "center",
         }}
+        onTouchEnd={deleteCard}
       >
         <MaskedView
+          androidRenderingMode="software"
           style={{ flex: 1, flexDirection: "row", height: "100%" }}
           maskElement={
             <View
+              key={icon_name}
               style={{
                 backgroundColor: "transparent",
                 flex: 1,
@@ -60,7 +76,7 @@ const CustomButton = ({ height, width, icon_name }) => {
                 alignItems: "center",
               }}
             >
-              <Ionicons name={icon_name} size={36} color="black" />
+              {icon_name ? <AnimatedIcon style={{ buttonStyles }} /> : null}
             </View>
           }
         >

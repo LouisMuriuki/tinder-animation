@@ -1,10 +1,12 @@
 import { createContext, useEffect, useState } from "react";
 import { cardsList } from "../../DataStore";
-interface card{
-    name:string
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllShips } from "../../api";
+interface card {
+  name: string;
 }
 interface dataContextType {
-  cardsData:card[];
+  cardsData: card[];
   setcardsData: React.Dispatch<React.SetStateAction<any>>;
 }
 
@@ -13,12 +15,12 @@ export const DataContext = createContext<dataContextType>({
   setcardsData: () => {},
 });
 
-
 export const DataContextprovider = ({ children }) => {
+  const query = useQuery({ queryKey: ["ships"], queryFn: fetchAllShips });
+
   const [cardsData, setcardsData] = useState();
   useEffect(() => {
-    //@ts-expect-error
-    setcardsData(cardsList.reverse());
+    setcardsData(query.data);
   }, []);
   return (
     <DataContext.Provider value={{ cardsData, setcardsData }}>

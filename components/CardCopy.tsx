@@ -24,9 +24,12 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { DataContext } from "./context/DataContext";
 import * as Haptics from "expo-haptics";
+import LottieView from "lottie-react-native";
+import { useColorGenerator } from "../hooks/useColorgenerator";
 
-const Card = (props: { name: string; color: string; height: number }) => {
+const Card = (props: { name: string; height: number; index: number }) => {
   const { width } = useWindowDimensions();
+  const color = useColorGenerator();
   const scale = useSharedValue<number>(1);
   const hide = useSharedValue<boolean>(false);
   const translatex = useSharedValue<number>(0);
@@ -77,11 +80,11 @@ const Card = (props: { name: string; color: string; height: number }) => {
       translatey.value = translatey.value + e.changeY;
       let relativeX = translatex.value + e.changeX;
       let relativeY = translatey.value + e.changeX;
-      if (relativeX < -175 || relativeY < -100) {
+      if (relativeX < -190 || relativeY < -100) {
         translatex.value = withSpring(relativeX + 50);
         runOnJS(deleteCard)();
       }
-      if (relativeX > 175 || relativeY > 100) {
+      if (relativeX > 190 || relativeY > 100) {
         translatex.value = withSpring(relativeX + 50);
         runOnJS(deleteCard)();
       }
@@ -116,11 +119,7 @@ const Card = (props: { name: string; color: string; height: number }) => {
       },
     ],
     opacity: interpolate(translatey.value, [-500, 0, 500], [0, 1, 0]),
-    // backgroundColor: interpolateColor(
-    //   translatex.value,
-    //   [100, 0, 500],
-    //   [props.color, "#d9064b", "#309e24"]
-    // ),
+    // backgroundColor: interpolateColor(props.index, [0, 20], [color, color]),
   }));
 
   const leftcard = useAnimatedStyle(() => ({
@@ -144,7 +143,7 @@ const Card = (props: { name: string; color: string; height: number }) => {
           {
             height: props.height,
             width: width - 60,
-            backgroundColor: props.color,
+            backgroundColor: color,
           },
           card_styles,
         ]}
@@ -158,7 +157,6 @@ const Card = (props: { name: string; color: string; height: number }) => {
               flexDirection: "row",
               top: 80,
               left: 40,
-              backgroundColor: "blue",
               borderRadius: 20,
               position: "absolute",
               zIndex: 1000,
@@ -166,7 +164,14 @@ const Card = (props: { name: string; color: string; height: number }) => {
             leftcard,
           ]}
         >
-          <Text>left</Text>
+          <LottieView
+            autoPlay
+            style={{
+              width: 120,
+              height: 120,
+            }}
+            source={require("../assets/lotties/like.json")}
+          />
         </Animated.View>
         <Animated.View
           style={[
@@ -176,7 +181,6 @@ const Card = (props: { name: string; color: string; height: number }) => {
               flexDirection: "row",
               top: 80,
               right: 40,
-              backgroundColor: "blue",
               borderRadius: 20,
               position: "absolute",
               zIndex: 1000,
@@ -184,28 +188,16 @@ const Card = (props: { name: string; color: string; height: number }) => {
             rightcard,
           ]}
         >
-          <Text>right</Text>
+          <LottieView
+            autoPlay
+            style={{
+              width: 120,
+              height: 120,
+            }}
+            source={require("../assets/lotties/nope.json")}
+          />
         </Animated.View>
       </Animated.View>
-
-      {/* <View>
-        <Animated.Text style={textStyles}>*****</Animated.Text>
-        <GestureDetector gesture={tap_gesture}>
-          <Animated.View
-            style={{
-              height: 40,
-              width: 70,
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "blue",
-              borderRadius: 20,
-            }}
-          >
-            <Text>Press me</Text>
-          </Animated.View>
-        </GestureDetector>
-      </View> */}
     </GestureDetector>
   );
 };

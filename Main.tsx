@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   useWindowDimensions,
   Button,
+  Vibration,
 } from "react-native";
 import React, { useContext, useState } from "react";
 
@@ -16,17 +17,20 @@ import Animated, {
 } from "react-native-reanimated";
 import Card from "./components/Card";
 import { DataContext } from "./components/context/DataContext";
-import { generateColor, useColorGenerator } from "./hooks/useColorgenerator";
+import { useColorGenerator } from "./hooks/useColorgenerator";
 import CustomButton from "./components/Button";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllShips } from "./api";
 
 const Main = () => {
   const randomWidth = useSharedValue(10);
-  const cardsData = useContext(DataContext);
+  const {cardsData,setcardsData} = useContext(DataContext);
   const { width, height } = useWindowDimensions();
   const config = {
     duration: 500,
     easing: Easing.bezier(0.5, 0.01, 0, 1),
   };
+ 
 
   const style = useAnimatedStyle(() => {
     return {
@@ -35,9 +39,9 @@ const Main = () => {
   });
 
   const addMarginTop = (index: number) => {
-    const zIndex = cardsData.cardsData.length - index;
+    const zIndex = cardsData.length - index;
     let margin = 0;
-    while (cardsData.cardsData.length > 0) {
+    while (cardsData.length > 0) {
       margin = zIndex + index;
     }
     return -margin;
@@ -50,8 +54,8 @@ const Main = () => {
     item: { name: string };
     index: number;
   }) => {
-    const color = useColorGenerator();
-    const cardslength = cardsData.cardsData.length;
+
+    const cardslength = cardsData.length;
     const zIndex = cardslength - index;
     const cardheight =
       index > cardslength - 4 && index < cardslength
@@ -66,10 +70,12 @@ const Main = () => {
           left: -150,
         }}
       >
-        <Card name={item.name} color={color} height={cardheight} />
+        <Card name={item.name} height={cardheight} index={index} />
       </View>
     );
   };
+
+  
 
   const renderCards = () => {
     return (
@@ -86,7 +92,7 @@ const Main = () => {
             alignItems: "center",
             justifyContent: "center",
           }}
-          data={cardsData.cardsData}
+          data={cardsData}
           renderItem={renderItem}
           keyExtractor={(item) => item.name}
         />
