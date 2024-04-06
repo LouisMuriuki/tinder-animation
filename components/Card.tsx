@@ -26,8 +26,10 @@ import { DataContext } from "./context/DataContext";
 import * as Haptics from "expo-haptics";
 import LottieView from "lottie-react-native";
 import { useColorGenerator } from "../hooks/useColorgenerator";
+import { Image } from "expo-image";
+import { vibrate } from "../utils/nail_hammer";
 
-const Card = (props: { name: string; height: number; index: number }) => {
+const Card = (props: { item: any; height: number; index: number }) => {
   const { width } = useWindowDimensions();
   const color = useColorGenerator();
   const scale = useSharedValue<number>(1);
@@ -60,13 +62,13 @@ const Card = (props: { name: string; height: number; index: number }) => {
   }, []);
 
   const filterCardData = () => {
-    const filteredCards = cardsData?.filter((pre) => pre.name !== props.name);
+    const filteredCards = cardsData?.filter(
+      (pre) => pre.name !== props.item.name
+    );
     setcardsData(filteredCards);
   };
 
-  const vibrate = () => {
-    Vibration.vibrate(20, false);
-  };
+
   const deleteCard = () => {
     filterCardData();
     vibrate();
@@ -132,6 +134,8 @@ const Card = (props: { name: string; height: number; index: number }) => {
   const handlePress = () => {
     hide.value = false;
   };
+  const blurhash =
+    "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
   const composed = Gesture.Simultaneous(pan_gesture, longtap_gesture); //Here
   return (
@@ -148,15 +152,21 @@ const Card = (props: { name: string; height: number; index: number }) => {
           card_styles,
         ]}
       >
-        <Text>{props.name}</Text>
+        <Image
+          style={[styles.image, { height: props.height, width: width - 60 }]}
+          source={props.item.flickr_images[1] ?? props.item.flickr_images[0]}
+          placeholder={blurhash}
+          contentFit="cover"
+          transition={500}
+        />
         <Animated.View
           style={[
             {
-              height: 120,
-              width: 120,
+              height: 220,
+              width: 220,
               flexDirection: "row",
               top: 80,
-              left: 40,
+              left: 1,
               borderRadius: 20,
               position: "absolute",
               zIndex: 1000,
@@ -167,8 +177,8 @@ const Card = (props: { name: string; height: number; index: number }) => {
           <LottieView
             autoPlay
             style={{
-              width: 120,
-              height: 120,
+              width: 220,
+              height: 220,
             }}
             source={require("../assets/lotties/like.json")}
           />
@@ -176,11 +186,11 @@ const Card = (props: { name: string; height: number; index: number }) => {
         <Animated.View
           style={[
             {
-              height: 120,
-              width: 120,
+              height: 220,
+              width: 220,
               flexDirection: "row",
               top: 80,
-              right: 40,
+              right: 1,
               borderRadius: 20,
               position: "absolute",
               zIndex: 1000,
@@ -191,8 +201,8 @@ const Card = (props: { name: string; height: number; index: number }) => {
           <LottieView
             autoPlay
             style={{
-              width: 120,
-              height: 120,
+              width: 220,
+              height: 220,
             }}
             source={require("../assets/lotties/nope.json")}
           />
@@ -209,7 +219,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 30,
-
     position: "relative",
+  },
+  image: {
+    flex: 1,
+    borderRadius: 30,
   },
 });

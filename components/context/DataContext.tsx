@@ -16,12 +16,8 @@ export const DataContext = createContext<dataContextType>({
 });
 
 export const DataContextprovider = ({ children }) => {
-  const query = useQuery({ queryKey: ["ships"], queryFn: fetchAllShips });
-
   const [cardsData, setcardsData] = useState();
-  useEffect(() => {
-    setcardsData(query.data);
-  }, []);
+
   return (
     <DataContext.Provider value={{ cardsData, setcardsData }}>
       {children}

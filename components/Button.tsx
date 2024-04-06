@@ -1,19 +1,22 @@
-import { View, Text, Vibration } from "react-native";
-import React, { useContext } from "react";
+import { View,} from "react-native";
+import React, { useContext,} from "react";
 import { Ionicons } from "@expo/vector-icons";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import { DataContext } from "./context/DataContext";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllShips } from "../api";
+import { vibrate } from "../utils/nail_hammer";
 
 const CustomButton = ({ height, width, icon_name }) => {
   const scale = useSharedValue(1);
+  const query = useQuery({ queryKey: ["rockets"], queryFn: fetchAllShips });
   const { cardsData, setcardsData } = useContext(DataContext);
   const tap = Gesture.Tap()
     .onBegin(() => {
@@ -30,14 +33,17 @@ const CustomButton = ({ height, width, icon_name }) => {
     const filteredCards = cardsData.slice(0, -1);
     setcardsData(filteredCards);
   };
-
-  const vibrate = () => {
-    Vibration.vibrate(20, false);
-  };
   const deleteCard = () => {
     console.log("running");
     filterCardData();
     vibrate();
+  };
+
+  const refresh = () => {
+    if (query.data) {
+      setcardsData(query.data);
+      vibrate()
+    }
   };
   const ButtonIcon = React.forwardRef((props, ref) => {
     return <Ionicons name={icon_name} size={36} color="black" />;
@@ -60,8 +66,9 @@ const CustomButton = ({ height, width, icon_name }) => {
           shadowRadius: 5,
           alignItems: "center",
           justifyContent: "center",
+          zIndex: 0,
         }}
-        onTouchEnd={deleteCard}
+        onTouchEnd={icon_name === "refresh-outline" ? refresh : deleteCard}
       >
         <MaskedView
           androidRenderingMode="software"

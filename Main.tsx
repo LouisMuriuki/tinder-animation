@@ -7,7 +7,7 @@ import {
   Button,
   Vibration,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import Animated, {
   useSharedValue,
@@ -23,29 +23,26 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllShips } from "./api";
 
 const Main = () => {
+  const { cardsData, setcardsData } = useContext(DataContext);
+  const query = useQuery({ queryKey: ["rockets"], queryFn: fetchAllShips });
+
+  useEffect(() => {
+    setcardsData(query.data);
+  }, []);
+
   const randomWidth = useSharedValue(10);
-  const {cardsData,setcardsData} = useContext(DataContext);
+
   const { width, height } = useWindowDimensions();
   const config = {
     duration: 500,
     easing: Easing.bezier(0.5, 0.01, 0, 1),
   };
- 
 
   const style = useAnimatedStyle(() => {
     return {
       width: withTiming(randomWidth.value, config),
     };
   });
-
-  const addMarginTop = (index: number) => {
-    const zIndex = cardsData.length - index;
-    let margin = 0;
-    while (cardsData.length > 0) {
-      margin = zIndex + index;
-    }
-    return -margin;
-  };
 
   const renderItem = ({
     item,
@@ -54,7 +51,6 @@ const Main = () => {
     item: { name: string };
     index: number;
   }) => {
-
     const cardslength = cardsData.length;
     const zIndex = cardslength - index;
     const cardheight =
@@ -70,14 +66,12 @@ const Main = () => {
           left: -150,
         }}
       >
-        <Card name={item.name} height={cardheight} index={index} />
+        <Card item={item} height={cardheight} index={index} />
       </View>
     );
   };
 
-  
-
-  const renderCards = () => {
+  const FlatlistComponent = () => {
     return (
       <SafeAreaView
         style={{
@@ -106,6 +100,13 @@ const Main = () => {
         >
           <CustomButton height={60} width={60} icon_name={"close"} />
           <CustomButton height={60} width={60} icon_name={"heart"} />
+          {cardsData && cardsData?.length > 0 ? null : (
+            <CustomButton
+              height={60}
+              width={60}
+              icon_name={"refresh-outline"}
+            />
+          )}
         </View>
       </SafeAreaView>
     );
@@ -116,7 +117,7 @@ const Main = () => {
         flex: 1,
       }}
     >
-      {renderCards()}
+      <FlatlistComponent />
     </View>
   );
 };
