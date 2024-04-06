@@ -1,5 +1,5 @@
-import { View,} from "react-native";
-import React, { useContext,} from "react";
+import { View } from "react-native";
+import React, { useContext } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
@@ -7,6 +7,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withSpring,
 } from "react-native-reanimated";
 import { DataContext } from "./context/DataContext";
@@ -18,19 +19,23 @@ const CustomButton = ({ height, width, icon_name }) => {
   const scale = useSharedValue(1);
   const query = useQuery({ queryKey: ["rockets"], queryFn: fetchAllShips });
   const { cardsData, setcardsData } = useContext(DataContext);
-  const tap = Gesture.Tap()
-    .onBegin(() => {
-      scale.value = withSpring(scale.value * 2, { duration: 200 });
+  const tap_gesture = Gesture.Tap()
+    .onTouchesDown(() => {
+      scale.value = withDelay(300, scale.value * 2);
     })
-    .onEnd(() => {
-      scale.value = withSpring(scale.value / 2, { duration: 500 });
+    .onTouchesUp(() => {
+      scale.value = 1;
+    })
+    .onFinalize(() => {
+      scale.value = 1;
     });
 
   const buttonStyles = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+  
   const filterCardData = () => {
-    const filteredCards = cardsData.slice(0, -1);
+    const filteredCards = cardsData?.slice(0, -1);
     setcardsData(filteredCards);
   };
   const deleteCard = () => {
@@ -42,7 +47,7 @@ const CustomButton = ({ height, width, icon_name }) => {
   const refresh = () => {
     if (query.data) {
       setcardsData(query.data);
-      vibrate()
+      vibrate();
     }
   };
   const ButtonIcon = React.forwardRef((props, ref) => {
@@ -52,23 +57,26 @@ const CustomButton = ({ height, width, icon_name }) => {
   const AnimatedIcon = Animated.createAnimatedComponent(ButtonIcon);
 
   return (
-    <GestureDetector gesture={tap}>
-      <View
-        style={{
-          height: height,
-          backgroundColor: "white",
-          width: width,
-          borderRadius: 50,
-          elevation: 5,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 5 },
-          shadowOpacity: 0.5,
-          shadowRadius: 5,
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 0,
-        }}
-        onTouchEnd={icon_name === "refresh-outline" ? refresh : deleteCard}
+    <GestureDetector gesture={tap_gesture}>
+      <Animated.View
+        style={[
+          {
+            height: height,
+            backgroundColor: "white",
+            width: width,
+            borderRadius: 50,
+            elevation: 5,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 5 },
+            shadowOpacity: 0.5,
+            shadowRadius: 5,
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 0,
+          },
+          buttonStyles,
+        ]}
+        // onTouchEnd={icon_name === "refresh-outline" ? refresh : deleteCard}
       >
         <MaskedView
           androidRenderingMode="software"
@@ -76,14 +84,16 @@ const CustomButton = ({ height, width, icon_name }) => {
           maskElement={
             <View
               key={icon_name}
-              style={{
-                backgroundColor: "transparent",
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+              style={[
+                {
+                  backgroundColor: "transparent",
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+              ]}
             >
-              {icon_name ? <AnimatedIcon style={{ buttonStyles }} /> : null}
+              {icon_name ? <AnimatedIcon  /> : null}
             </View>
           }
         >
@@ -92,7 +102,7 @@ const CustomButton = ({ height, width, icon_name }) => {
             style={{ flex: 1 }}
           />
         </MaskedView>
-      </View>
+      </Animated.View>
     </GestureDetector>
   );
 };

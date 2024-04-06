@@ -7,7 +7,7 @@ import {
   Platform,
   Vibration,
 } from "react-native";
-import React, { useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import Animated, {
   BounceInDown,
   BounceInUp,
@@ -29,19 +29,21 @@ import { useColorGenerator } from "../hooks/useColorgenerator";
 import { Image } from "expo-image";
 import { vibrate } from "../utils/nail_hammer";
 
-const Card = (props: { item: any; height: number; index: number }) => {
+const Card = (props: {
+  item: any;
+  height: number;
+  filterCardData: (name: string) => void;
+}) => {
+  const { cardsData, setcardsData } = useContext(DataContext);
   const { width } = useWindowDimensions();
-  const color = useColorGenerator();
   const scale = useSharedValue<number>(1);
   const hide = useSharedValue<boolean>(false);
   const translatex = useSharedValue<number>(0);
   const translatey = useSharedValue<number>(0);
 
-  const { setcardsData, cardsData } = useContext(DataContext);
-
   const longtap_gesture = Gesture.LongPress()
     .onTouchesDown(() => {
-      scale.value = scale.value * 0.98;
+      scale.value = scale.value * 0.92;
     })
     .onTouchesUp(() => {
       scale.value = 1;
@@ -61,16 +63,8 @@ const Card = (props: { item: any; height: number; index: number }) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   }, []);
 
-  const filterCardData = () => {
-    const filteredCards = cardsData?.filter(
-      (pre) => pre.name !== props.item.name
-    );
-    setcardsData(filteredCards);
-  };
-
-
-  const deleteCard = () => {
-    filterCardData();
+  const deleteCard = (name: string) => {
+    props.filterCardData(name);
     vibrate();
   };
 
@@ -84,11 +78,11 @@ const Card = (props: { item: any; height: number; index: number }) => {
       let relativeY = translatey.value + e.changeX;
       if (relativeX < -190 || relativeY < -100) {
         translatex.value = withSpring(relativeX + 50);
-        runOnJS(deleteCard)();
+        runOnJS(deleteCard)(props.item.name);
       }
       if (relativeX > 190 || relativeY > 100) {
         translatex.value = withSpring(relativeX + 50);
-        runOnJS(deleteCard)();
+        runOnJS(deleteCard)(props.item.name);
       }
     })
     .onFinalize(() => {
@@ -134,6 +128,7 @@ const Card = (props: { item: any; height: number; index: number }) => {
   const handlePress = () => {
     hide.value = false;
   };
+  console.log("fucking rerendering");
   const blurhash =
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
@@ -147,7 +142,6 @@ const Card = (props: { item: any; height: number; index: number }) => {
           {
             height: props.height,
             width: width - 60,
-            backgroundColor: color,
           },
           card_styles,
         ]}
@@ -212,7 +206,7 @@ const Card = (props: { item: any; height: number; index: number }) => {
   );
 };
 
-export default Card;
+export default React.memo(Card);
 
 const styles = StyleSheet.create({
   card_container: {

@@ -15,6 +15,7 @@ export const DataContext = createContext<dataContextType>({
   setcardsData: () => {},
 });
 
+
 export const DataContextprovider = ({ children }) => {
   const [cardsData, setcardsData] = useState();
 
