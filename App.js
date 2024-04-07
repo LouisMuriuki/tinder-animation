@@ -7,11 +7,11 @@ export default function AnimatedStyleUpdateExample(props) {
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      <DataContextprovider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <DataContextprovider>
           <Main />
-        </GestureHandlerRootView>
-      </DataContextprovider>
+        </DataContextprovider>
+      </GestureHandlerRootView>
     </QueryClientProvider>
   );
 }
