@@ -1,31 +1,17 @@
-import {
-  View,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  Button,
-  Platform,
-  Vibration,
-} from "react-native";
-import React, { useCallback, useContext, useEffect } from "react";
+import { StyleSheet, useWindowDimensions } from "react-native";
+import React, { useContext, useEffect } from "react";
 import Animated, {
-  BounceInDown,
   BounceInUp,
-  BounceOutUp,
   interpolate,
-  interpolateColor,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { DataContext } from "./context/DataContext";
 import * as Haptics from "expo-haptics";
 import LottieView from "lottie-react-native";
-import { useColorGenerator } from "../hooks/useColorgenerator";
 import { Image } from "expo-image";
 import { vibrate } from "../utils/nail_hammer";
 
@@ -34,29 +20,20 @@ const Card = (props: {
   height: number;
   filterCardData: (name: string) => void;
 }) => {
-  const { cardsData, setcardsData } = useContext(DataContext);
+  const { cardsData, setcardsData,translatex,translatey } = useContext(DataContext);
   const { width } = useWindowDimensions();
   const scale = useSharedValue<number>(1);
   const hide = useSharedValue<boolean>(false);
-  const translatex = useSharedValue<number>(0);
-  const translatey = useSharedValue<number>(0);
-
+  
   const longtap_gesture = Gesture.LongPress()
     .onTouchesDown(() => {
-      scale.value = scale.value * 0.92;
+      scale.value = scale.value * 0.98;
     })
     .onTouchesUp(() => {
       scale.value = 1;
     })
     .onFinalize(() => {
       scale.value = 1;
-    });
-  const tap_gesture = Gesture.Tap()
-    .onTouchesDown(() => {
-      hide.value = true;
-    })
-    .onTouchesUp(() => {
-      hide.value = false;
     });
 
   useEffect(() => {
@@ -74,15 +51,26 @@ const Card = (props: {
       console.log("THIS IS THE VALUE", translatex.value + e.changeX);
       translatex.value = translatex.value + e.changeX;
       translatey.value = translatey.value + e.changeY;
-      let relativeX = translatex.value + e.changeX;
-      let relativeY = translatey.value + e.changeX;
-      if (relativeX < -190 || relativeY < -100) {
+      let relativeX = translatex.value;
+      let relativeY = translatey.value;
+      if (relativeX < -180 || relativeY < -400) {
         translatex.value = withSpring(relativeX + 50);
-        runOnJS(deleteCard)(props.item.name);
       }
-      if (relativeX > 190 || relativeY > 100) {
+      if (relativeX > 180 || relativeY > 400) {
         translatex.value = withSpring(relativeX + 50);
+      }
+    })
+
+    .onTouchesUp(() => {
+      if (translatex.value < -210 || translatey.value < -400) {
+        translatex.value = withSpring(translatex.value + 50);
         runOnJS(deleteCard)(props.item.name);
+        translatex.value = withSpring(0);
+      }
+      if (translatex.value > 210 || translatey.value > 400) {
+        translatex.value = withSpring(translatey.value + 250);
+        runOnJS(deleteCard)(props.item.name);
+        translatex.value = withSpring(0);
       }
     })
     .onFinalize(() => {
@@ -119,24 +107,24 @@ const Card = (props: {
   }));
 
   const leftcard = useAnimatedStyle(() => ({
-    opacity: interpolate(translatex.value, [0, 40, 80], [0, 0, 1]),
+    opacity: interpolate(translatex.value, [15, 40, 80], [0, 0.4, 1]),
   }));
   const rightcard = useAnimatedStyle(() => ({
-    opacity: interpolate(translatex.value, [-80, -40, 0], [1, 0, 0]),
+    opacity: interpolate(translatex.value, [-80, -40, -15], [1, 0.4, 0]),
   }));
 
   const handlePress = () => {
     hide.value = false;
   };
-  console.log("fucking rerendering");
+
   const blurhash =
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
-  const composed = Gesture.Simultaneous(pan_gesture, longtap_gesture); //Here
+  const composed = Gesture.Exclusive(pan_gesture, longtap_gesture); //Here
   return (
     <GestureDetector gesture={composed}>
       <Animated.View
-        entering={BounceInDown}
+        entering={BounceInUp}
         style={[
           styles.card_container,
           {
@@ -149,9 +137,9 @@ const Card = (props: {
         <Image
           style={[styles.image, { height: props.height, width: width - 60 }]}
           source={props.item.flickr_images[1] ?? props.item.flickr_images[0]}
-          placeholder={blurhash}
+          placeholder={props.item.name}
           contentFit="cover"
-          transition={500}
+          // transition={50}
         />
         <Animated.View
           style={[

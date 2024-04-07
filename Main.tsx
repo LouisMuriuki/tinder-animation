@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   Button,
   Vibration,
+  StatusBar,
 } from "react-native";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
@@ -24,19 +25,20 @@ import CustomButton from "./components/Button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllShips } from "./api";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { cardsList } from "./DataStore";
 
 const Main = () => {
   const { cardsData, setcardsData } = useContext(DataContext);
   const query = useQuery({ queryKey: ["rockets"], queryFn: fetchAllShips });
 
   useEffect(() => {
-    console.log(query.data)
-    setcardsData(query.data);
+    console.log(query.data);
+    setcardsData(cardsList);
   }, []);
 
   const randomWidth = useSharedValue(10);
 
-  const { height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const config = {
     duration: 500,
     easing: Easing.bezier(0.5, 0.01, 0, 1),
@@ -49,10 +51,14 @@ const Main = () => {
   });
 
   const filterCardData = useCallback(
-    (name: string) => {
-      setcardsData((prev: any[]) =>
-        prev.filter((card: { name: string }) => card.name !== name)
-      );
+    (name?: string) => {
+      if (name) {
+        setcardsData((prev: any[]) =>
+          prev.filter((card: { name: string }) => card.name !== name)
+        );
+      } else {
+        setcardsData(cardsData?.slice(0, -1));
+      }
     },
     [cardsData]
   );
@@ -71,8 +77,8 @@ const Main = () => {
           style={{
             zIndex,
             position: "absolute",
-            bottom: -330,
-            left: -150,
+            bottom: -width * 0.85,
+            left: -width * 0.425,
           }}
         >
           <Card
@@ -97,10 +103,25 @@ const Main = () => {
           justifyContent: "space-evenly",
         }}
       >
-        <CustomButton height={60} width={60} icon_name={"close"} />
-        <CustomButton height={60} width={60} icon_name={"heart"} />
+        <CustomButton
+          height={60}
+          width={60}
+          icon_name={"close"}
+          filterCardData={filterCardData}
+        />
+        <CustomButton
+          height={60}
+          width={60}
+          icon_name={"heart"}
+          filterCardData={filterCardData}
+        />
         {cardsData && cardsData?.length > 0 ? null : (
-          <CustomButton height={60} width={60} icon_name={"refresh-outline"} />
+          <CustomButton
+            height={60}
+            width={60}
+            icon_name={"refresh-outline"}
+            filterCardData={filterCardData}
+          />
         )}
       </View>
     );
@@ -112,6 +133,7 @@ const Main = () => {
         backgroundColor: "#4A154B",
       }}
     >
+      <StatusBar barStyle="light-content" backgroundColor={"#4A154B"} />
       <FlatList
         contentContainerStyle={{
           flexGrow: 1,
@@ -119,7 +141,7 @@ const Main = () => {
           alignItems: "center",
           justifyContent: "center",
         }}
-        data={cardsData && cardsData}
+        data={cardsData ? cardsData : []}
         renderItem={renderItem}
         keyExtractor={(item) => item.name}
       />
