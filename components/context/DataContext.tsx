@@ -9,24 +9,30 @@ interface card {
 interface dataContextType {
   cardsData: card[];
   translateButtonX: any;
+  buttonTranslateXCard: any;
   setcardsData: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const DataContext = createContext<dataContextType>({
   cardsData: [],
   translateButtonX: 0,
-
+  buttonTranslateXCard: 0,
   setcardsData: () => {},
 });
 
 export const DataContextprovider = ({ children }) => {
   const [cardsData, setcardsData] = useState();
   const translateButtonX = useSharedValue<number>(0);
-
+  const buttonTranslateXCard = useSharedValue<number>(0);
 
   return (
     <DataContext.Provider
-      value={{ cardsData, setcardsData, translateButtonX,}}
+      value={{
+        cardsData,
+        buttonTranslateXCard,
+        setcardsData,
+        translateButtonX,
+      }}
     >
       {children}
     </DataContext.Provider>

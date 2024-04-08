@@ -32,7 +32,8 @@ const config = {
 const CustomButton = ({ height, width, icon_name, filterCardData }) => {
   const scale = useSharedValue(1);
   // const query = useQuery({ queryKey: ["rockets"], queryFn: fetchAllShips });
-  const { cardsData, setcardsData, translateButtonX } = useContext(DataContext);
+  const { cardsData, setcardsData, translateButtonX, buttonTranslateXCard } =
+    useContext(DataContext);
 
   console.log("running");
   const deleteCard = () => {
@@ -50,6 +51,20 @@ const CustomButton = ({ height, width, icon_name, filterCardData }) => {
     .onBegin(() => {})
     .onTouchesDown(() => {
       scale.value = withSpring(1.4, config);
+      {
+        icon_name === "heart"
+          ? (buttonTranslateXCard.value = withTiming(500, {
+              duration: 1500,
+            }))
+          : null;
+      }
+      {
+        icon_name === "close"
+          ? (buttonTranslateXCard.value = withTiming(-500, {
+              duration: 1500,
+            }))
+          : null;
+      }
     })
     .onTouchesUp(() => {
       scale.value = withTiming(1);
