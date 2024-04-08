@@ -8,26 +8,38 @@ interface card {
 }
 interface dataContextType {
   cardsData: card[];
-  translatex:any;
-  translatey:any;
+  translatex: any;
+  translatey: any;
+  buttonTranslateXCard: any;
+
   setcardsData: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const DataContext = createContext<dataContextType>({
   cardsData: [],
-  translatex:0,
-  translatey:0,
+  translatex: 0,
+  translatey: 0,
+  buttonTranslateXCard: 0,
   setcardsData: () => {},
 });
 
-
 export const DataContextprovider = ({ children }) => {
   const [cardsData, setcardsData] = useState();
-const translatex = useSharedValue<number>(0);
-const translatey = useSharedValue<number>(0);
+
+  const translatex = useSharedValue<number>(0);
+  const translatey = useSharedValue<number>(0);
+  const buttonTranslateXCard = useSharedValue<number>(0);
 
   return (
-    <DataContext.Provider value={{ cardsData, setcardsData ,translatex,translatey}}>
+    <DataContext.Provider
+      value={{
+        cardsData,
+        buttonTranslateXCard,
+        setcardsData,
+        translatex,
+        translatey,
+      }}
+    >
       {children}
     </DataContext.Provider>
   );

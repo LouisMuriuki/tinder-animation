@@ -69,8 +69,8 @@ const Main = () => {
       const zIndex = cardslength - index;
       const cardheight =
         index > cardslength - 4 && index < cardslength
-          ? height - height / 5 + zIndex * 20
-          : height - height / 5;
+          ? height - height / 4 + zIndex * 20
+          : height - height / 4;
       return (
         <View
           key={index}

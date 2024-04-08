@@ -20,7 +20,7 @@ const Card = (props: {
   height: number;
   filterCardData: (name: string) => void;
 }) => {
-  const { cardsData, setcardsData,translatex,translatey } = useContext(DataContext);
+  const { cardsData, setcardsData,translatex,translatey, buttonTranslateXCard  } = useContext(DataContext);
   const { width } = useWindowDimensions();
   const scale = useSharedValue<number>(1);
   const hide = useSharedValue<boolean>(false);
@@ -106,6 +106,28 @@ const Card = (props: {
     // backgroundColor: interpolateColor(props.index, [0, 20], [color, color]),
   }));
 
+  const onbutton_card_styles = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: buttonTranslateXCard.value },
+      {
+        rotateY: `${interpolate(
+          buttonTranslateXCard.value,
+          [-500, 0, 500],
+          [-100, 0, 100]
+        )}deg`,
+      },
+      {
+        rotateX: `${interpolate(
+          buttonTranslateXCard.value,
+          [-500, 0, 500],
+          [30, 0, 30]
+        )}deg`,
+      },
+    ],
+    opacity: interpolate(buttonTranslateXCard.value, [-500, 0, 500], [0, 1, 0]),
+    // backgroundColor: interpolateColor(props.index, [0, 20], [color, color]),
+  }));
+
   const leftcard = useAnimatedStyle(() => ({
     opacity: interpolate(translatex.value, [15, 40, 80], [0, 0.4, 1]),
   }));
@@ -132,6 +154,7 @@ const Card = (props: {
             width: width - 60,
           },
           card_styles,
+          onbutton_card_styles,
         ]}
       >
         <Image
