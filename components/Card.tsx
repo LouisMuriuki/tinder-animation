@@ -67,13 +67,13 @@ const Card = (props: {
     })
 
     .onTouchesUp(() => {
-      if (translatex.value < -210 || translatey.value < -400) {
+      if (translatex.value < -210 || translatey.value < -320) {
         translatex.value = withSpring(translatex.value + 50);
         runOnJS(deleteCard)(props.item.name);
         translatex.value = withSpring(0);
         translateButtonX.value = withSpring(0);
       }
-      if (translatex.value > 210 || translatey.value > 400) {
+      if (translatex.value > 210 || translatey.value > 320) {
         translatex.value = withSpring(translatey.value + 250);
         runOnJS(deleteCard)(props.item.name);
         translatex.value = withSpring(0);
@@ -136,10 +136,10 @@ const Card = (props: {
   }));
 
   const leftcard = useAnimatedStyle(() => ({
-    opacity: interpolate(translatex.value, [15, 40, 80], [0, 0.4, 1]),
+    opacity: interpolate(translatex.value, [30, 60, 90], [0, 0.4, 1]),
   }));
   const rightcard = useAnimatedStyle(() => ({
-    opacity: interpolate(translatex.value, [-80, -40, -15], [1, 0.4, 0]),
+    opacity: interpolate(translatex.value, [-90, -60, -30], [1, 0.4, 0]),
   }));
 
   const handlePress = () => {

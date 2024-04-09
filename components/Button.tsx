@@ -74,6 +74,14 @@ const CustomButton = ({ height, width, icon_name, filterCardData }) => {
           : runOnJS(deleteCard)();
       }
     });
+  const long_press = Gesture.LongPress()
+    .onBegin(() => {})
+    .onTouchesDown(() => {
+      scale.value = withSpring(1.4, config);
+    })
+    .onTouchesUp(() => {
+      scale.value = withTiming(1, config);
+    });
 
   const pan_gesture = Gesture.Pan()
     .onChange((e) => {})
@@ -101,7 +109,7 @@ const CustomButton = ({ height, width, icon_name, filterCardData }) => {
   });
 
   const AnimatedIcon = Animated.createAnimatedComponent(ButtonIcon);
-  const combined = Gesture.Exclusive(pan_gesture, tap_gesture);
+  const combined = Gesture.Exclusive(pan_gesture, tap_gesture, long_press);
   return (
     <GestureDetector gesture={combined}>
       <Animated.View
