@@ -9,7 +9,11 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { DataContext } from "./context/DataContext";
+import {
+  DataContext,
+  DataContextprovider,
+  useContextValue,
+} from "./context/DataContext";
 import * as Haptics from "expo-haptics";
 import LottieView from "lottie-react-native";
 import { Image } from "expo-image";
@@ -20,8 +24,9 @@ const Card = (props: {
   height: number;
   filterCardData: (name: string) => void;
 }) => {
-  const { cardsData, setcardsData, translateButtonX, buttonTranslateXCard } =
-    useContext(DataContext);
+  const { cardsData, setcardsData } = useContext(DataContext);
+  const translateButtonX = useSharedValue<number>(0);
+  const { buttonTranslateXCard } = useContextValue();
   const { width } = useWindowDimensions();
   const scale = useSharedValue<number>(1);
   const hide = useSharedValue<boolean>(false);
@@ -151,76 +156,78 @@ const Card = (props: {
 
   const composed = Gesture.Exclusive(pan_gesture, longtap_gesture); //Here
   return (
-    <GestureDetector gesture={composed}>
-      <Animated.View
-        entering={BounceInUp}
-        style={[
-          styles.card_container,
-          {
-            height: props.height,
-            width: width - 60,
-          },
-          card_styles,
-          // onbutton_card_styles,
-        ]}
-      >
-        <Image
-          style={[styles.image, { height: props.height, width: width - 60 }]}
-          source={props.item.flickr_images[1] ?? props.item.flickr_images[0]}
-          placeholder={props.item.name}
-          contentFit="cover"
-          // transition={50}
-        />
+    <DataContextprovider translateButtonX={translateButtonX.value}>
+      <GestureDetector gesture={composed}>
         <Animated.View
+          entering={BounceInUp}
           style={[
+            styles.card_container,
             {
-              height: 220,
-              width: 220,
-              flexDirection: "row",
-              top: 80,
-              left: 1,
-              borderRadius: 20,
-              position: "absolute",
-              zIndex: 1000,
+              height: props.height,
+              width: width - 60,
             },
-            leftcard,
+            card_styles,
+            // onbutton_card_styles,
           ]}
         >
-          <LottieView
-            autoPlay
-            style={{
-              width: 220,
-              height: 220,
-            }}
-            source={require("../assets/lotties/like.json")}
+          <Image
+            style={[styles.image, { height: props.height, width: width - 60 }]}
+            source={props.item.flickr_images[1] ?? props.item.flickr_images[0]}
+            placeholder={props.item.name}
+            contentFit="cover"
+            // transition={50}
           />
+          <Animated.View
+            style={[
+              {
+                height: 220,
+                width: 220,
+                flexDirection: "row",
+                top: 80,
+                left: 1,
+                borderRadius: 20,
+                position: "absolute",
+                zIndex: 1000,
+              },
+              leftcard,
+            ]}
+          >
+            <LottieView
+              autoPlay
+              style={{
+                width: 220,
+                height: 220,
+              }}
+              source={require("../assets/lotties/like.json")}
+            />
+          </Animated.View>
+          <Animated.View
+            style={[
+              {
+                height: 220,
+                width: 220,
+                flexDirection: "row",
+                top: 80,
+                right: 1,
+                borderRadius: 20,
+                position: "absolute",
+                zIndex: 1000,
+              },
+              rightcard,
+            ]}
+          >
+            <LottieView
+              autoPlay
+              style={{
+                width: 220,
+                height: 220,
+              }}
+              source={require("../assets/lotties/nope.json")}
+            />
+          </Animated.View>
         </Animated.View>
-        <Animated.View
-          style={[
-            {
-              height: 220,
-              width: 220,
-              flexDirection: "row",
-              top: 80,
-              right: 1,
-              borderRadius: 20,
-              position: "absolute",
-              zIndex: 1000,
-            },
-            rightcard,
-          ]}
-        >
-          <LottieView
-            autoPlay
-            style={{
-              width: 220,
-              height: 220,
-            }}
-            source={require("../assets/lotties/nope.json")}
-          />
-        </Animated.View>
-      </Animated.View>
-    </GestureDetector>
+      </GestureDetector>
+    </DataContextprovider>
   );
 };
 

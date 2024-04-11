@@ -15,7 +15,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { DataContext } from "./context/DataContext";
+import { DataContext, DataContextprovider, useContextValue } from "./context/DataContext";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllShips } from "../api";
 import { vibrate } from "../utils/nail_hammer";
@@ -31,8 +31,10 @@ const config = {
 };
 const CustomButton = ({ height, width, icon_name, filterCardData }) => {
   const scale = useSharedValue(1);
+    const buttonTranslateXCard = useSharedValue<number>(0);
+    const { translateButtonX } = useContextValue();
   // const query = useQuery({ queryKey: ["rockets"], queryFn: fetchAllShips });
-  const { cardsData, setcardsData, translateButtonX, buttonTranslateXCard } =
+  const { cardsData, setcardsData,  } =
     useContext(DataContext);
 
   console.log("running");
@@ -111,63 +113,65 @@ const CustomButton = ({ height, width, icon_name, filterCardData }) => {
   const AnimatedIcon = Animated.createAnimatedComponent(ButtonIcon);
   const combined = Gesture.Exclusive(pan_gesture, tap_gesture, long_press);
   return (
-    <GestureDetector gesture={combined}>
-      <Animated.View
-        entering={BounceInDown}
-        style={[
-          {
-            height: height,
-            backgroundColor: "white",
-            width: width,
-            borderRadius: 50,
-            elevation: 5,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 5 },
-            shadowOpacity: 0.5,
-            shadowRadius: 5,
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 0,
-          },
-          buttonStyles,
-          buttonScaleStyles,
-        ]}
-      >
-        <MaskedView
-          androidRenderingMode="software"
-          style={{ flex: 1, flexDirection: "row", height: "100%" }}
-          maskElement={
-            <View
-              key={icon_name}
-              style={[
-                {
-                  backgroundColor: "transparent",
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
-              ]}
-            >
-              {icon_name ? <AnimatedIcon /> : null}
-            </View>
-          }
+    <DataContextprovider buttonTranslateXCard={buttonTranslateXCard?.value} >
+      <GestureDetector gesture={combined}>
+        <Animated.View
+          entering={BounceInDown}
+          style={[
+            {
+              height: height,
+              backgroundColor: "white",
+              width: width,
+              borderRadius: 50,
+              elevation: 5,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 5 },
+              shadowOpacity: 0.5,
+              shadowRadius: 5,
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 0,
+            },
+            buttonStyles,
+            buttonScaleStyles,
+          ]}
         >
-          <LinearGradient
-            colors={[
-              "#FF0018",
-              "#FF0018",
-              "#FFA52C",
-              "#FFFF41",
-              "#008018",
-              "#0000F9",
-              "#86007D",
-              "#FF0018",
-            ]}
-            style={{ flex: 1, transform: [{ rotateZ: "180deg" }] }}
-          />
-        </MaskedView>
-      </Animated.View>
-    </GestureDetector>
+          <MaskedView
+            androidRenderingMode="software"
+            style={{ flex: 1, flexDirection: "row", height: "100%" }}
+            maskElement={
+              <View
+                key={icon_name}
+                style={[
+                  {
+                    backgroundColor: "transparent",
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  },
+                ]}
+              >
+                {icon_name ? <AnimatedIcon /> : null}
+              </View>
+            }
+          >
+            <LinearGradient
+              colors={[
+                "#FF0018",
+                "#FF0018",
+                "#FFA52C",
+                "#FFFF41",
+                "#008018",
+                "#0000F9",
+                "#86007D",
+                "#FF0018",
+              ]}
+              style={{ flex: 1, transform: [{ rotateZ: "180deg" }] }}
+            />
+          </MaskedView>
+        </Animated.View>
+      </GestureDetector>
+    </DataContextprovider>
   );
 };
 

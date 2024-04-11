@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { cardsList } from "../../DataStore";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllShips } from "../../api";
@@ -7,10 +7,10 @@ interface card {
   name: string;
 }
 interface dataContextType {
-  cardsData: card[];
-  translateButtonX: any;
-  buttonTranslateXCard: any;
-  setcardsData: React.Dispatch<React.SetStateAction<any>>;
+  cardsData?: card[];
+  translateButtonX?: any;
+  buttonTranslateXCard?: any;
+  setcardsData?: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const DataContext = createContext<dataContextType>({
@@ -19,11 +19,12 @@ export const DataContext = createContext<dataContextType>({
   buttonTranslateXCard: 0,
   setcardsData: () => {},
 });
-
-export const DataContextprovider = ({ children }) => {
-  const [cardsData, setcardsData] = useState();
-  const translateButtonX = useSharedValue<number>(0);
-  const buttonTranslateXCard = useSharedValue<number>(0);
+export const DataContextprovider = ({
+  buttonTranslateXCard,
+  translateButtonX,
+  children,
+}) => {
+    const [cardsData, setcardsData] = useState();
 
   return (
     <DataContext.Provider
@@ -38,3 +39,8 @@ export const DataContextprovider = ({ children }) => {
     </DataContext.Provider>
   );
 };
+
+export const useContextValue=()=>{
+const {buttonTranslateXCard,translateButtonX} = useContext(DataContext);
+return { buttonTranslateXCard, translateButtonX };
+}
